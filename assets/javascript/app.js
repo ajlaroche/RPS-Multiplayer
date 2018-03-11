@@ -15,13 +15,19 @@ $(document).ready(function () {
     var playerTwoGuess = "";
     var refDatabase = firebase.database();
     var whoAmI = "";
-    var userProfile = { name: "", wins: 0, losses: 0, choice: "" };
+    var whoAmIname = "playerOne";
+    var userProfile = { name: "", wins: 0, losses: 0, choice: "", status: "waiting" };
     var dbPlayerOneChoice = "";
     var dbPlayerTwochoice = "";
     var playerOneWins = 0;
     var playerOneLoss = 0;
     var playerTwoWins = 0;
     var playerTwoLoss = 0;
+    var playerOneStatus = "waiting";
+    var playerTwoStatus = "waiting";
+    var playerOneName = "";
+    var playerTwoName = "";
+    var gameStatus;
 
     refDatabase.ref("/playerOne/" + "choice").set("");
     refDatabase.ref("/playerTwo/" + "choice").set("");
@@ -37,12 +43,15 @@ $(document).ready(function () {
     refDatabase.ref().once("value", function (snapshot) {
         var enteredData = snapshot.val();
         if (enteredData.playerOne.name === "") {
-            whoAmI = "playerOne";
+            whoAmI = "/playerOne/";
+
         } else {
-            whoAmI = "playerTwo";
+            whoAmI = "/playerTwo/";
+
         }
         console.log(enteredData.playerOne);
-        console.log(whoAmI);
+        console.log(whoAmI, whoAmIname);
+
     })
 
     //listen for user picks
@@ -50,11 +59,29 @@ $(document).ready(function () {
         dbPlayerOneChoice = snapshot.val().playerOne.choice;
         dbPlayerTwochoice = snapshot.val().playerTwo.choice;
         playerOneWins = snapshot.val().playerOne.wins;
+        
+        playerOneName = snapshot.val().playerOne.name;
+        playerTwoName = snapshot.val().playerTwo.name;
+        playerOneStatus = snapshot.val().playerOne.status;
+        playerTwoStatus = snapshot.val().playerTwo.status;
+        gameStatus = snapshot.val().Winner;
         // playerOneLoss = snapshot.val().playerOne.losses;
         playerTwoWins = snapshot.val().playerTwo.wins;
+        
         // playerTwoLoss = snapshot.val().playerTwo.losses;
-        $("#playerOneChoice").text(dbPlayerOneChoice);
-        $("#playerTwoChoice").text(dbPlayerTwochoice);
+        $("#playerOnePick").text(dbPlayerOneChoice);
+        $("#playerTwoPick").text(dbPlayerTwochoice);
+        $("#headerPlayerOne").text(snapshot.val().playerOne.name);
+        $("#headerPlayerTwo").text(snapshot.val().playerTwo.name);
+        $("#announceWinner").text(snapshot.val().Winner);
+
+        if (gameStatus === "waiting") {
+            $(".selection").show();
+            $(".picks").hide();
+        } else {
+            $(".selection").hide();
+            $(".picks").show();
+        }
         console.log(snapshot.val());
 
     })
@@ -64,14 +91,18 @@ $(document).ready(function () {
 
         if ($("#playerName").val() !== "") {
             userProfile.name = $("#playerName").val().trim();
-            if (whoAmI === "playerTwo") {  //Need to figure out if player one already exists
+            if (whoAmI === "/playerTwo/") {  //Need to figure out if player one already exists
                 refDatabase.ref("playerTwo").set(userProfile);
-                console.log("playerOne Detected");
+                whoAmIname = "/playerTwo/name";
+                console.log(whoAmIname);
             } else {
                 refDatabase.ref("playerOne").set(userProfile);
+                whoAmIname = "/playerOne/name";
+                console.log(whoAmIname);
                 console.log(userProfile);
             }
         }
+        $("#playerName").val("");
     })
     $("#playerName").keypress(function (e) {
         if (e.keyCode == 13)
@@ -81,19 +112,25 @@ $(document).ready(function () {
 
 
     $("#playerOne").on("click", ".selection", function () {
-        if (whoAmI === "playerOne") {
+        if (whoAmI === "/playerOne/") {
             console.log($(this).attr("data-choice"));
             playerOneGuess = $(this).attr("data-choice");
-            refDatabase.ref("/playerOne/" + "choice").set(playerOneGuess);
+            refDatabase.ref(whoAmI + "choice").set(playerOneGuess);
+            refDatabase.ref(whoAmI + "status").set("Played");
+            $(".selectionOne").hide();
+            $("#playerOnePick").show();
             findWinner();
 
         }
     })
     $("#playerTwo").on("click", ".selection", function () {
-        if (whoAmI === "playerTwo") {
+        if (whoAmI === "/playerTwo/") {
             console.log($(this).attr("data-choice"));
             playerTwoGuess = $(this).attr("data-choice");
-            refDatabase.ref("/playerTwo/" + "choice").set(playerTwoGuess);
+            refDatabase.ref(whoAmI + "choice").set(playerTwoGuess);
+            refDatabase.ref(whoAmI + "status").set("Played");
+            $(".selectionTwo").hide();
+            $("#playerTwoPick").show();
             findWinner();
         }
     })
@@ -105,8 +142,10 @@ $(document).ready(function () {
     var winner;
 
 
+    var test = "playerOne";
+
     function findWinner() {
-        if (dbPlayerOneChoice !== "" && dbPlayerTwochoice !== "") {
+        if (playerOneStatus === "Played" && playerTwoStatus === "Played") {
             switch (dbPlayerOneChoice) {
                 case "rock":
                     playerOneTest = "r";
@@ -130,24 +169,39 @@ $(document).ready(function () {
             resultTest = playerOneTest + playerTwoTest;
             console.log(resultTest);
             if (resultTest === "rs" || resultTest === "pr" || resultTest === "sp") {
-                winner = "playerOne";
+                winner = playerOneName + " Wins!";
                 playerOneWins++;
-                playerTwoLoss++;
+                playerTwoLoss = playerOneWins;
                 refDatabase.ref("/playerOne/" + "wins").set(playerOneWins);
                 refDatabase.ref("/playerTwo/" + "losses").set(playerTwoLoss);
             } else if (resultTest === "rr" || resultTest === "ss" || resultTest === "pp") {
                 winner = "It's a Tie!"
 
             } else {
-                winner = "playerTwo";
+                winner = playerTwoName + " Wins!";
                 playerTwoWins++;
-                playerOneLoss++;
+                playerOneLoss = playerTwoWins;
                 refDatabase.ref("/playerTwo/" + "wins").set(playerTwoWins);
                 refDatabase.ref("/playerOne/" + "losses").set(playerOneLoss);
 
             }
-            refDatabase.ref("/playerOne/" + "choice").set("");
-            refDatabase.ref("/playerTwo/" + "choice").set("");
+            refDatabase.ref("Winner").set(winner);
+
+            setTimeout(function () {
+                refDatabase.ref("/playerOne/" + "choice").set("");
+                refDatabase.ref("/playerTwo/" + "choice").set("");
+                refDatabase.ref("/playerOne/" + "status").set("waiting");
+                refDatabase.ref("/playerTwo/" + "status").set("waiting");
+                refDatabase.ref("Winner").set("waiting");
+                resultTest = "";
+                playerOneTest = "";
+                playerTwoTest = "";
+                $(".selectionOne").show();
+                $("#playerOnePick").hide();
+                $(".selectionTwo").show();
+                $("#playerTwoPick").hide();
+            }, 5000);
+
 
             console.log(playerOneWins, playerOneLoss)
 
@@ -155,4 +209,6 @@ $(document).ready(function () {
             console.log(winner);
         }
     }
+    // refDatabase.ref(whoAmIname).onDisconnect().cancel();
+    // refDatabase.ref(whoAmIname).onDisconnect().set("");
 })

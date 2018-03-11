@@ -31,14 +31,15 @@
         </div>
         <div class="row justify-content-center" id="gameArea">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header" id="headerPlayerOne">
                     Player 1
                 </div>
                 <div class="card-body" id="playerOne">
                     <h4 class="card-title">Make your choice!</h4>
-                    <p class="card-text selection" data-choice="rock">Rock</p>
-                    <p class="card-text selection" data-choice="paper">Paper</p>
-                    <p class="card-text selection" data-choice="scissors">Scissors</p>
+                    <p class="card-text selection selectionOne" data-choice="rock">Rock</p>
+                    <p class="card-text selection selectionOne" data-choice="paper">Paper</p>
+                    <p class="card-text selection selectionOne" data-choice="scissors">Scissors</p>
+                    <h4 class="picks" id="playerOnePick"></h4>
                 </div>
             </div>
             <div class="card">
@@ -46,21 +47,22 @@
                     Result
                 </div>
                 <div class="card-body" id="Result">
-                    <h4 class="card-title">Player 1 Pick</h4>
-                    <p class="card-text" id="playerOneChoice"></p>
+                    <h4 class="card-title" id="announceWinner" >Player 1 Pick</h4>
+                    <!-- <p class="card-text" id="playerOneChoice"></p>
                     <h4 class="card-title">Player 2 Pick</h4>
-                    <p class="card-text" id="playerTwoChoice"></p>
+                    <p class="card-text" id="playerTwoChoice"></p> -->
                 </div>
             </div>
             <div class="card">
-                <div class="card-header">
+                <div class="card-header" id="headerPlayerTwo">
                     Player 2
                 </div>
                 <div class="card-body" id="playerTwo">
                     <h4 class="card-title">Make your choice!</h4>
-                    <p class="card-text selection" data-choice="rock">Rock</p>
-                    <p class="card-text selection" data-choice="paper">Paper</p>
-                    <p class="card-text selection" data-choice="scissors">Scissors</p>
+                    <p class="card-text selection selectionTwo" data-choice="rock">Rock</p>
+                    <p class="card-text selection selectionTwo" data-choice="paper">Paper</p>
+                    <p class="card-text selection selectionTwo" data-choice="scissors">Scissors</p>
+                    <h4 class="picks" id="playerTwoPick"></h4>
                 </div>
             </div>
 
