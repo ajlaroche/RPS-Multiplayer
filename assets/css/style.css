@@ -1,5 +1,6 @@
 .card {
     margin: 2rem;
+    min-width: 20rem;
 }
 #SaveNameButton{
     display: inline-block;
@@ -10,4 +11,30 @@
 }
 .picks{
     display: none;
+}
+#whichPlayer{
+    display: none;
+}
+#resultsCard{
+    min-width: 10rem;
+}
+.card-body{
+    text-align: center;
+}
+#chatBox{
+    width: 30rem;
+    height: 10rem;
+}
+#chatUserText{
+    width: 30rem;
+    margin-right: 2rem;
+}
+.chatArea{
+    margin-left: 25%;
+}
+#chatText{
+    text-align: left;
+    line-height: 0.3rem;
+    padding: 0.5rem;
+
 }

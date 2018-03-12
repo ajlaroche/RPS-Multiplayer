@@ -28,6 +28,7 @@ $(document).ready(function () {
     var playerOneName = "";
     var playerTwoName = "";
     var gameStatus;
+    var userName;
 
     refDatabase.ref("/playerOne/" + "choice").set("");
     refDatabase.ref("/playerTwo/" + "choice").set("");
@@ -35,6 +36,7 @@ $(document).ready(function () {
     refDatabase.ref("/playerTwo/" + "wins").set(0);
     refDatabase.ref("/playerOne/" + "losses").set(0);
     refDatabase.ref("/playerTwo/" + "losses").set(0);
+    refDatabase.ref("chatbox").set("");
 
     var otherUser = firebase.auth().currentUser;
     setTimeout(function () { console.log(otherUser) }, 5000);
@@ -59,7 +61,7 @@ $(document).ready(function () {
         dbPlayerOneChoice = snapshot.val().playerOne.choice;
         dbPlayerTwochoice = snapshot.val().playerTwo.choice;
         playerOneWins = snapshot.val().playerOne.wins;
-        
+
         playerOneName = snapshot.val().playerOne.name;
         playerTwoName = snapshot.val().playerTwo.name;
         playerOneStatus = snapshot.val().playerOne.status;
@@ -67,7 +69,8 @@ $(document).ready(function () {
         gameStatus = snapshot.val().Winner;
         // playerOneLoss = snapshot.val().playerOne.losses;
         playerTwoWins = snapshot.val().playerTwo.wins;
-        
+
+
         // playerTwoLoss = snapshot.val().playerTwo.losses;
         $("#playerOnePick").text(dbPlayerOneChoice);
         $("#playerTwoPick").text(dbPlayerTwochoice);
@@ -95,11 +98,15 @@ $(document).ready(function () {
                 refDatabase.ref("playerTwo").set(userProfile);
                 whoAmIname = "/playerTwo/name";
                 console.log(whoAmIname);
+                $("#whichPlayer").text("You are Player 2").show();
+                $(".nameInputSection").hide();
+
             } else {
                 refDatabase.ref("playerOne").set(userProfile);
                 whoAmIname = "/playerOne/name";
                 console.log(whoAmIname);
-                console.log(userProfile);
+                $("#whichPlayer").text("You are Player 1").show();
+                $(".nameInputSection").hide();
             }
         }
         $("#playerName").val("");
@@ -211,4 +218,24 @@ $(document).ready(function () {
     }
     // refDatabase.ref(whoAmIname).onDisconnect().cancel();
     // refDatabase.ref(whoAmIname).onDisconnect().set("");
+
+
+    //Chat capability section starts here
+    $("#sendTextButton").on("click", function () {
+        var userChat = userProfile.name + ": " + $("#chatUserText").val().trim();
+        if (userChat !== "") {
+            refDatabase.ref("chatbox").push(userChat);
+        }
+        $("#chatUserText").val("");
+    })
+
+    $("#chatUserText").keypress(function (e) {
+        if (e.keyCode == 13)
+            $("#sendTextButton").click();
+    });
+    //listening event for when new children are added only
+    refDatabase.ref("chatbox").on("child_added", function (snapshot) {
+        var addText = $("<p></p>").text(snapshot.val());
+        $("#chatText").append(addText);
+    })
 })
