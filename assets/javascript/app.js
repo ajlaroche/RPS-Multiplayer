@@ -15,8 +15,8 @@ $(document).ready(function () {
     var playerTwoGuess = "";
     var refDatabase = firebase.database();
     var whoAmI = "";
-    var whoAmIname = "playerOne";
-    var userProfile = { name: "", wins: 0, losses: 0, choice: "", status: "waiting" };
+    var whoAmIname = "";
+    var userProfile = { name: "", wins: 0, losses: 0, choice: "", status: "waiting", online: true };
     var dbPlayerOneChoice = "";
     var dbPlayerTwochoice = "";
     var playerOneWins = 0;
@@ -42,19 +42,25 @@ $(document).ready(function () {
     setTimeout(function () { console.log(otherUser) }, 5000);
 
     //check if I'm player one or two
-    refDatabase.ref().once("value", function (snapshot) {
-        var enteredData = snapshot.val();
-        if (enteredData.playerOne.name === "") {
-            whoAmI = "/playerOne/";
+    function checkWhoAmI() {
+        refDatabase.ref().once("value", function (snapshot) {
+            var enteredData = snapshot.val();
+            if (enteredData.playerOne.online === false) {
+                whoAmI = "/playerOne/";
+                // refDatabase.ref("/playerOne/" + "online").set(true);
 
-        } else {
-            whoAmI = "/playerTwo/";
+            } else {
+                whoAmI = "/playerTwo/";
+                // refDatabase.ref("/playerTwo/" + "online").set(true);
+            }
+            whoAmIname = whoAmI + "online"
 
-        }
-        console.log(enteredData.playerOne);
-        console.log(whoAmI, whoAmIname);
+            console.log(enteredData.playerOne);
+            console.log(whoAmI, whoAmIname);
 
-    })
+        })
+    }
+    checkWhoAmI();
 
     //listen for user picks
     refDatabase.ref().on("value", function (snapshot) {
@@ -91,16 +97,19 @@ $(document).ready(function () {
             $("#gameScore").text("Wins: " + playerTwoWins + " Losses: " + snapshot.val().playerTwo.losses);
         }
 
+       
+
     })
 
     //enter user names
     $("#SaveNameButton").on("click", function () {
-
+        checkWhoAmI();
         if ($("#playerName").val() !== "") {
             userProfile.name = $("#playerName").val().trim();
+            refDatabase.ref(whoAmI).onDisconnect().update({ name: "", online: false });
             if (whoAmI === "/playerTwo/") {  //Need to figure out if player one already exists
                 refDatabase.ref("playerTwo").set(userProfile);
-                whoAmIname = "/playerTwo/name";
+                // whoAmIname = "/playerTwo/name";
                 console.log(whoAmIname);
                 $("#whichPlayer").text("You are Player 2").show();
                 $("#gameScore").show();
@@ -108,7 +117,7 @@ $(document).ready(function () {
 
             } else {
                 refDatabase.ref("playerOne").set(userProfile);
-                whoAmIname = "/playerOne/name";
+                // whoAmIname = "/playerOne/name";
                 console.log(whoAmIname);
                 $("#whichPlayer").text("You are Player 1").show();
                 $("#gameScore").show();
@@ -223,7 +232,7 @@ $(document).ready(function () {
         }
     }
     // refDatabase.ref(whoAmIname).onDisconnect().cancel();
-    // refDatabase.ref(whoAmIname).onDisconnect().set("");
+    refDatabase.ref().onDisconnect().cancel();
 
 
     //Chat capability section starts here
