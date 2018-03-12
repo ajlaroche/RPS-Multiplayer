@@ -67,11 +67,9 @@ $(document).ready(function () {
         playerOneStatus = snapshot.val().playerOne.status;
         playerTwoStatus = snapshot.val().playerTwo.status;
         gameStatus = snapshot.val().Winner;
-        // playerOneLoss = snapshot.val().playerOne.losses;
+
         playerTwoWins = snapshot.val().playerTwo.wins;
 
-
-        // playerTwoLoss = snapshot.val().playerTwo.losses;
         $("#playerOnePick").text(dbPlayerOneChoice);
         $("#playerTwoPick").text(dbPlayerTwochoice);
         $("#headerPlayerOne").text(snapshot.val().playerOne.name);
@@ -87,6 +85,12 @@ $(document).ready(function () {
         }
         console.log(snapshot.val());
 
+        if (whoAmI === "/playerOne/") {
+            $("#gameScore").text("Wins: " + playerOneWins + " Losses: " + snapshot.val().playerOne.losses);
+        } else {
+            $("#gameScore").text("Wins: " + playerTwoWins + " Losses: " + snapshot.val().playerTwo.losses);
+        }
+
     })
 
     //enter user names
@@ -99,6 +103,7 @@ $(document).ready(function () {
                 whoAmIname = "/playerTwo/name";
                 console.log(whoAmIname);
                 $("#whichPlayer").text("You are Player 2").show();
+                $("#gameScore").show();
                 $(".nameInputSection").hide();
 
             } else {
@@ -106,6 +111,7 @@ $(document).ready(function () {
                 whoAmIname = "/playerOne/name";
                 console.log(whoAmIname);
                 $("#whichPlayer").text("You are Player 1").show();
+                $("#gameScore").show();
                 $(".nameInputSection").hide();
             }
         }
