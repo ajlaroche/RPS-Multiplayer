@@ -36,6 +36,8 @@ $(document).ready(function () {
     refDatabase.ref("/playerTwo/" + "wins").set(0);
     refDatabase.ref("/playerOne/" + "losses").set(0);
     refDatabase.ref("/playerTwo/" + "losses").set(0);
+    refDatabase.ref("/playerOne/" + "status").set("waiting");
+    refDatabase.ref("/playerTwo/" + "status").set("waiting");
     refDatabase.ref("chatbox").set("");
 
     var otherUser = firebase.auth().currentUser;
