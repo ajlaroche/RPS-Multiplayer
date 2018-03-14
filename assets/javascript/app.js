@@ -160,7 +160,7 @@ $(document).ready(function () {
 
 
     $("#playerOne").on("click", ".selection", function () {
-        if (whoAmI === "/playerOne/") {
+        if (whoAmI === "/playerOne/" && playerOneExist === true && playerTwoExist === true) {
             console.log($(this).attr("data-choice"));
             playerOneGuess = $(this).attr("data-choice");
             refDatabase.ref(whoAmI + "choice").set(playerOneGuess);
@@ -171,10 +171,12 @@ $(document).ready(function () {
             $("#playerTwoOpposingPick").show();
             findWinner();
 
+        } else {
+            alert("Please enter your name and wait for a second player to join.")
         }
     })
     $("#playerTwo").on("click", ".selection", function () {
-        if (whoAmI === "/playerTwo/") {
+        if (whoAmI === "/playerTwo/" && playerTwoExist === true && playerOneExist === true) {
             console.log($(this).attr("data-choice"));
             playerTwoGuess = $(this).attr("data-choice");
             refDatabase.ref(whoAmI + "choice").set(playerTwoGuess);
@@ -184,6 +186,8 @@ $(document).ready(function () {
             $(".selectionOne").hide();
             $("#playerOneOpposingPick").show();
             findWinner();
+        } else {
+            alert("Please enter your name and wait for a second player to join.")
         }
     })
 
