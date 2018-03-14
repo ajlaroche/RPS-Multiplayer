@@ -267,9 +267,13 @@ $(document).ready(function () {
 
     //Chat capability section starts here
     $("#sendTextButton").on("click", function () {
-        var userChat = userProfile.name + ": " + $("#chatUserText").val().trim();
-        if (userChat !== "") {
-            refDatabase.ref("chatbox").push(userChat);
+        if (playerOneExist === true && playerTwoExist === true) {
+            var userChat = userProfile.name + ": " + $("#chatUserText").val().trim();
+            if (userChat !== "") {
+                refDatabase.ref("chatbox").push(userChat);
+            }
+        } else {
+            alert("There needs to be two named players for chat function to work");
         }
         $("#chatUserText").val("");
     })
@@ -293,4 +297,23 @@ $(document).ready(function () {
             $(this).css({ "background-color": "white", "color": "black", "cursor": "default" })
         }
     })
+
+    //Idle time calculator to reload page
+    var idleTime = 0;
+    //Increment the idle time counter every minute.
+    var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
+
+    //Zero the idle timer on mouse movement.
+    $(this).mousemove(function (e) {
+        idleTime = 0;
+    });
+    $(this).keypress(function (e) {
+        idleTime = 0;
+    })
+    function timerIncrement() {
+        idleTime = idleTime + 1;
+        if (idleTime > 9) { // 10 minutes
+            window.location.reload();
+        }
+    }
 })
