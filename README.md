@@ -6,3 +6,5 @@ Once your name is entered, you can only make a choice in your designated box.
 If the other player's box has a red border, it indicates that he or she has not played yet.  If your box turns red, the other player has played and is waiting for you.
 
 Wins and losses are tracked.  To end the game, simply reload the page.
+
+Note that the game will restart if idled for more than 10 minutes.
