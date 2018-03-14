@@ -9,7 +9,10 @@
     width: 15rem;
     margin-right: 2rem;
 }
-.picks{
+.picks {
+    display: none;
+}
+.opposingPick{
     display: none;
 }
 #whichPlayer{
@@ -42,8 +45,8 @@
     display: none;
     text-align: center;
 }
-/* .playerTurn{
+.playerTurn{
     border-color: red;
     border-width: 3px;
     border-style: solid;
-    } */
+    }

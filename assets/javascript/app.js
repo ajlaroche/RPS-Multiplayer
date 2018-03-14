@@ -27,6 +27,8 @@ $(document).ready(function () {
     var playerTwoStatus = "waiting";
     var playerOneName = "";
     var playerTwoName = "";
+    var playerOneExist;
+    var playerTwoExist;
     var gameStatus;
     var userName;
 
@@ -40,8 +42,6 @@ $(document).ready(function () {
     refDatabase.ref("/playerTwo/" + "status").set("waiting");
     refDatabase.ref("chatbox").set("");
 
-    var otherUser = firebase.auth().currentUser;
-    setTimeout(function () { console.log(otherUser) }, 5000);
 
     //check if I'm player one or two
     function checkWhoAmI() {
@@ -68,15 +68,20 @@ $(document).ready(function () {
     refDatabase.ref().on("value", function (snapshot) {
         dbPlayerOneChoice = snapshot.val().playerOne.choice;
         dbPlayerTwochoice = snapshot.val().playerTwo.choice;
+
         playerOneWins = snapshot.val().playerOne.wins;
+        playerTwoWins = snapshot.val().playerTwo.wins;
 
         playerOneName = snapshot.val().playerOne.name;
         playerTwoName = snapshot.val().playerTwo.name;
+
         playerOneStatus = snapshot.val().playerOne.status;
         playerTwoStatus = snapshot.val().playerTwo.status;
-        gameStatus = snapshot.val().Winner;
 
-        playerTwoWins = snapshot.val().playerTwo.wins;
+        playerOneExist = snapshot.val().playerOne.online;
+        playerTwoExist = snapshot.val().playerTwo.online;
+
+        gameStatus = snapshot.val().Winner;
 
         $("#playerOnePick").text(dbPlayerOneChoice);
         $("#playerTwoPick").text(dbPlayerTwochoice);
@@ -90,6 +95,7 @@ $(document).ready(function () {
         } else {
             $(".selection").hide();
             $(".picks").show();
+            $(".opposingPick").hide();
         }
         console.log(snapshot.val());
 
@@ -98,32 +104,50 @@ $(document).ready(function () {
         } else {
             $("#gameScore").text("Wins: " + playerTwoWins + " Losses: " + snapshot.val().playerTwo.losses);
         }
+        if (playerOneStatus === "waiting" && playerTwoStatus === "Played") {
+            $("#playerOneCard").addClass("playerTurn");
+        } else {
+            $("#playerOneCard").removeClass("playerTurn");
+        }
+        if (playerOneStatus === "Played" && playerTwoStatus === "waiting") {
+            $("#playerTwoCard").addClass("playerTurn");
+        } else {
+            $("#playerTwoCard").removeClass("playerTurn");
+        }
 
-       
-
+    }, function (errorObject) {
+        console.log("The read failed: " + errorObject.code);
     })
 
     //enter user names
     $("#SaveNameButton").on("click", function () {
-        checkWhoAmI();
-        if ($("#playerName").val() !== "") {
-            userProfile.name = $("#playerName").val().trim();
-            refDatabase.ref(whoAmI).onDisconnect().update({ name: "", online: false });
-            if (whoAmI === "/playerTwo/") {  //Need to figure out if player one already exists
-                refDatabase.ref("playerTwo").set(userProfile);
-                // whoAmIname = "/playerTwo/name";
-                console.log(whoAmIname);
-                $("#whichPlayer").text("You are Player 2").show();
-                $("#gameScore").show();
-                $(".nameInputSection").hide();
+        checkWhoAmI(); //checks which player am I again in case second player has already logged
+        if (playerOneExist === true && playerTwoExist === true) {
+            $("#myModal").modal();
+        } else {
+            if ($("#playerName").val() !== "") {
+                userProfile.name = $("#playerName").val().trim();
+                refDatabase.ref(whoAmI).onDisconnect().update({ name: "", online: false });
+                if (whoAmI === "/playerTwo/") {  //Need to figure out if player one already exists
+                    refDatabase.ref("playerTwo").set(userProfile);
+                    // whoAmIname = "/playerTwo/name";
+                    console.log(whoAmIname);
+                    $("#whichPlayer").text("You are Player 2").show();
+                    $("#gameScore").show();
+                    $(".nameInputSection").hide();
+                    $(".selectionOne").hide();
+                    $("#playerOneOpposingPick").show();
 
-            } else {
-                refDatabase.ref("playerOne").set(userProfile);
-                // whoAmIname = "/playerOne/name";
-                console.log(whoAmIname);
-                $("#whichPlayer").text("You are Player 1").show();
-                $("#gameScore").show();
-                $(".nameInputSection").hide();
+                } else {
+                    refDatabase.ref("playerOne").set(userProfile);
+                    // whoAmIname = "/playerOne/name";
+                    console.log(whoAmIname);
+                    $("#whichPlayer").text("You are Player 1").show();
+                    $("#gameScore").show();
+                    $(".nameInputSection").hide();
+                    $(".selectionTwo").hide();
+                    $("#playerTwoOpposingPick").show();
+                }
             }
         }
         $("#playerName").val("");
@@ -143,6 +167,8 @@ $(document).ready(function () {
             refDatabase.ref(whoAmI + "status").set("Played");
             $(".selectionOne").hide();
             $("#playerOnePick").show();
+            $(".selectionTwo").hide();
+            $("#playerTwoOpposingPick").show();
             findWinner();
 
         }
@@ -155,6 +181,8 @@ $(document).ready(function () {
             refDatabase.ref(whoAmI + "status").set("Played");
             $(".selectionTwo").hide();
             $("#playerTwoPick").show();
+            $(".selectionOne").hide();
+            $("#playerOneOpposingPick").show();
             findWinner();
         }
     })
@@ -254,5 +282,15 @@ $(document).ready(function () {
     refDatabase.ref("chatbox").on("child_added", function (snapshot) {
         var addText = $("<p></p>").text(snapshot.val());
         $("#chatText").append(addText);
+    })
+
+    //Mouse events
+    $(".card-text").on({
+        mouseenter: function () {
+            $(this).css({ "background-color": "#194769", "color": "#F6F6E9", "cursor": "pointer" })
+        },
+        mouseleave: function () {
+            $(this).css({ "background-color": "white", "color": "black", "cursor": "default" })
+        }
     })
 })
