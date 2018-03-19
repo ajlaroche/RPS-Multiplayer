@@ -32,7 +32,7 @@
         <div class="row justify-content-center" id="gameScore"></div>
         <div class="row justify-content-center" id="gameArea">
             <div class="card" id="playerOneCard">
-                <div class="card-header" id="headerPlayerOne">
+                <div class="card-header justify-content-center" id="headerPlayerOne">
                     Player 1
                 </div>
                 <div class="card-body justify-content-center" id="playerOne">
@@ -42,10 +42,11 @@
                     <p class="card-text selection selectionOne" data-choice="scissors">Scissors</p>
                     <h4 class="picks" id="playerOnePick"></h4>
                     <h4 class="opposingPick" id="playerOneOpposingPick">No selection made yet</h4>
+                    <h4 class="opposingPick" id="playerOneDone">Player 1 has Picked</h4>
                 </div>
             </div>
             <div class="card" id="resultsCard">
-                <div class="card-header">
+                <div class="card-header justify-content-center">
                     Result
                 </div>
                 <div class="card-body" id="Result">
@@ -54,7 +55,7 @@
                 </div>
             </div>
             <div class="card" id="playerTwoCard">
-                <div class="card-header" id="headerPlayerTwo">
+                <div class="card-header justify-content-center" id="headerPlayerTwo">
                     Player 2
                 </div>
                 <div class="card-body" id="playerTwo">
@@ -64,6 +65,7 @@
                     <p class="card-text selection selectionTwo" data-choice="scissors">Scissors</p>
                     <h4 class="picks" id="playerTwoPick"></h4>
                     <h4 class="opposingPick" id="playerTwoOpposingPick">No selection made yet</h4>
+                    <h4 class="opposingPick" id="playerTwoDone">Player 2 has Picked</h4>
                 </div>
             </div>
 
@@ -91,7 +93,7 @@
               </button>
             </div>
             <div class="modal-body">
-              <p>Two players are already playing. Try again later.</p>
+              <p id="modalMessage">Two players are already playing. Try again later.</p>
             </div>
             <div class="modal-footer">
               <!-- <button type="button" class="btn btn-primary">Save changes</button> -->

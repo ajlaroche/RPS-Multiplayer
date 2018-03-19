@@ -31,6 +31,7 @@ $(document).ready(function () {
     var playerTwoExist;
     var gameStatus;
     var userName;
+    var winner;
 
     refDatabase.ref("/playerOne/" + "choice").set("");
     refDatabase.ref("/playerTwo/" + "choice").set("");
@@ -49,11 +50,9 @@ $(document).ready(function () {
             var enteredData = snapshot.val();
             if (enteredData.playerOne.online === false) {
                 whoAmI = "/playerOne/";
-                // refDatabase.ref("/playerOne/" + "online").set(true);
 
             } else {
                 whoAmI = "/playerTwo/";
-                // refDatabase.ref("/playerTwo/" + "online").set(true);
             }
             whoAmIname = whoAmI + "online"
 
@@ -106,14 +105,33 @@ $(document).ready(function () {
         }
         if (playerOneStatus === "waiting" && playerTwoStatus === "Played") {
             $("#playerOneCard").addClass("playerTurn");
+            $(".selectionTwo").hide();
+            $("#playerTwoOpposingPick").show().text("Played");
+
         } else {
             $("#playerOneCard").removeClass("playerTurn");
         }
         if (playerOneStatus === "Played" && playerTwoStatus === "waiting") {
             $("#playerTwoCard").addClass("playerTurn");
+            $(".selectionOne").hide();
+            $("#playerOneOpposingPick").show().text("Played");
+
+
         } else {
             $("#playerTwoCard").removeClass("playerTurn");
         }
+        if (whoAmI === "/playerOne/" && playerOneStatus === "waiting" && playerTwoStatus === "waiting") {
+            $("#playerTwoCard").hide();
+        } else {
+            $("#playerTwoCard").show();
+
+        }
+        if (whoAmI === "/playerTwo/" && playerOneStatus === "waiting" && playerTwoStatus === "waiting") {
+            $("#playerOneCard").hide();
+        } else {
+            $("#playerOneCard").show();
+        }
+
 
     }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
@@ -130,7 +148,6 @@ $(document).ready(function () {
                 refDatabase.ref(whoAmI).onDisconnect().update({ name: "", online: false });
                 if (whoAmI === "/playerTwo/") {  //Need to figure out if player one already exists
                     refDatabase.ref("playerTwo").set(userProfile);
-                    // whoAmIname = "/playerTwo/name";
                     console.log(whoAmIname);
                     $("#whichPlayer").text("You are Player 2").show();
                     $("#gameScore").show();
@@ -140,7 +157,6 @@ $(document).ready(function () {
 
                 } else {
                     refDatabase.ref("playerOne").set(userProfile);
-                    // whoAmIname = "/playerOne/name";
                     console.log(whoAmIname);
                     $("#whichPlayer").text("You are Player 1").show();
                     $("#gameScore").show();
@@ -165,14 +181,20 @@ $(document).ready(function () {
             playerOneGuess = $(this).attr("data-choice");
             refDatabase.ref(whoAmI + "choice").set(playerOneGuess);
             refDatabase.ref(whoAmI + "status").set("Played");
-            $(".selectionOne").hide();
             $("#playerOnePick").show();
+            $("#playerOneOpposingPick").hide();
             $(".selectionTwo").hide();
             $("#playerTwoOpposingPick").show();
             findWinner();
 
+        } else if (whoAmI === "/playerOne/" && playerOneExist === true && playerTwoExist === false) {
+            $(".modal-title").text("Wait!");
+            $("#modalMessage").text("Please wait for Player 2 to join.")
+            $("#myModal").modal();
         } else {
-            alert("Please enter your name and wait for a second player to join.")
+            $(".modal-title").text("Wait!");
+            $("#modalMessage").text("Please enter your name to play.")
+            $("#myModal").modal();
         }
     })
     $("#playerTwo").on("click", ".selection", function () {
@@ -181,13 +203,19 @@ $(document).ready(function () {
             playerTwoGuess = $(this).attr("data-choice");
             refDatabase.ref(whoAmI + "choice").set(playerTwoGuess);
             refDatabase.ref(whoAmI + "status").set("Played");
-            $(".selectionTwo").hide();
             $("#playerTwoPick").show();
+            $("#playerTwoOpposingPick").hide();
             $(".selectionOne").hide();
             $("#playerOneOpposingPick").show();
             findWinner();
+        } else if (whoAmI === "/playerTwo/" && playerOneExist === false && playerTwoExist === true) {
+            $(".modal-title").text("Wait!");
+            $("#modalMessage").text("Please wait for Player 1 to join.")
+            $("#myModal").modal();
         } else {
-            alert("Please enter your name and wait for a second player to join.")
+            $(".modal-title").text("Wait!");
+            $("#modalMessage").text("Please enter your name to play.")
+            $("#myModal").modal();
         }
     })
 
@@ -195,8 +223,6 @@ $(document).ready(function () {
     var playerOneTest = "";
     var playerTwoTest = "";
     var resultTest = "";
-    var winner;
-
 
     var test = "playerOne";
 
@@ -256,6 +282,8 @@ $(document).ready(function () {
                 $("#playerOnePick").hide();
                 $(".selectionTwo").show();
                 $("#playerTwoPick").hide();
+                $("#playerOneOpposingPick").text("No selection made yet");
+                $("#playerTwoOpposingPick").text("No selection made yet");
             }, 5000);
 
 
@@ -265,7 +293,6 @@ $(document).ready(function () {
             console.log(winner);
         }
     }
-    // refDatabase.ref(whoAmIname).onDisconnect().cancel();
     refDatabase.ref().onDisconnect().cancel();
 
 
@@ -277,7 +304,9 @@ $(document).ready(function () {
                 refDatabase.ref("chatbox").push(userChat);
             }
         } else {
-            alert("There needs to be two named players for chat function to work");
+            $(".modal-title").text("Wait!");
+            $("#modalMessage"), text("There needs to be two named players for chat function to work")
+            $("#myModal").modal();
         }
         $("#chatUserText").val("");
     })

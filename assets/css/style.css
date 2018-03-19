@@ -24,6 +24,12 @@
 .card-body{
     text-align: center;
 }
+.card-header{
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: indigo;
+}
 #chatBox{
     width: 30rem;
     height: 10rem;
