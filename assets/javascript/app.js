@@ -48,11 +48,19 @@ $(document).ready(function () {
     function checkWhoAmI() {
         refDatabase.ref().once("value", function (snapshot) {
             var enteredData = snapshot.val();
-            if (enteredData.playerOne.online === false) {
+            if (enteredData.connection1 === false) {
                 whoAmI = "/playerOne/";
-
+                refDatabase.ref("connection1").set(true);
+                refDatabase.ref().onDisconnect().update({ connection1: false });
             } else {
                 whoAmI = "/playerTwo/";
+
+            }
+
+            if (enteredData.connection1 === true && enteredData.connection2 === false) {
+                whoAmI === "/playerTwo/"
+                refDatabase.ref("connection2").set(true);
+                refDatabase.ref().onDisconnect().update({ connection2: false });
             }
             whoAmIname = whoAmI + "online"
 
@@ -100,8 +108,10 @@ $(document).ready(function () {
 
         if (whoAmI === "/playerOne/") {
             $("#gameScore").text("Wins: " + playerOneWins + " Losses: " + snapshot.val().playerOne.losses);
+
         } else {
             $("#gameScore").text("Wins: " + playerTwoWins + " Losses: " + snapshot.val().playerTwo.losses);
+
         }
         if (playerOneStatus === "waiting" && playerTwoStatus === "Played") {
             $("#playerOneCard").addClass("playerTurn");
@@ -120,18 +130,35 @@ $(document).ready(function () {
         } else {
             $("#playerTwoCard").removeClass("playerTurn");
         }
-        if (whoAmI === "/playerOne/" && playerOneStatus === "waiting" && playerTwoStatus === "waiting") {
+
+        if (whoAmI === "/playerOne/" && playerOneExist === true && playerTwoExist === true && playerTwoStatus === "waiting") {
             $("#playerTwoCard").hide();
         } else {
             $("#playerTwoCard").show();
-
         }
-        if (whoAmI === "/playerTwo/" && playerOneStatus === "waiting" && playerTwoStatus === "waiting") {
+
+        if (whoAmI === "/playerOne/" && playerOneExist === true && playerTwoExist === false && playerTwoStatus === "waiting") {
+            $("#playerTwoCard").show();
+            $("#playerTwoOpposingPick").hide();
+        } 
+
+        if (whoAmI === "/playerTwo/" && playerOneExist === true && playerTwoExist === true && playerOneStatus === "waiting") {
             $("#playerOneCard").hide();
         } else {
             $("#playerOneCard").show();
+            $("#playerOneOpposingPick").hide();
         }
 
+        if (whoAmI === "/playerTwo/" && playerOneExist === true && playerTwoExist === false && playerOneStatus === "waiting") {
+            console.log("yes");
+            $(".selectionOne").hide();
+            $("#playerOneOpposingPick").show();
+        }
+
+        if (whoAmI === "/playerOne/" && playerOneExist === false && playerTwoExist === true && playerTwoStatus === "waiting") {
+            $(".selectionTwo").hide();
+            $("#playerTwoOpposingPick").show();
+        }
 
     }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
@@ -139,7 +166,7 @@ $(document).ready(function () {
 
     //enter user names
     $("#SaveNameButton").on("click", function () {
-        checkWhoAmI(); //checks which player am I again in case second player has already logged
+        // checkWhoAmI(); //checks which player am I again in case second player has already logged
         if (playerOneExist === true && playerTwoExist === true) {
             $("#myModal").modal();
         } else {
