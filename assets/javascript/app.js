@@ -54,13 +54,13 @@ $(document).ready(function () {
                 refDatabase.ref().onDisconnect().update({ connection1: false });
             } else {
                 whoAmI = "/playerTwo/";
-
+                refDatabase.ref("connection2").set(true);
+                refDatabase.ref().onDisconnect().update({ connection2: false });
             }
 
             if (enteredData.connection1 === true && enteredData.connection2 === false) {
                 whoAmI === "/playerTwo/"
-                refDatabase.ref("connection2").set(true);
-                refDatabase.ref().onDisconnect().update({ connection2: false });
+
             }
             whoAmIname = whoAmI + "online"
 
@@ -140,7 +140,7 @@ $(document).ready(function () {
         if (whoAmI === "/playerOne/" && playerOneExist === true && playerTwoExist === false && playerTwoStatus === "waiting") {
             $("#playerTwoCard").show();
             $("#playerTwoOpposingPick").hide();
-        } 
+        }
 
         if (whoAmI === "/playerTwo/" && playerOneExist === true && playerTwoExist === true && playerOneStatus === "waiting") {
             $("#playerOneCard").hide();
