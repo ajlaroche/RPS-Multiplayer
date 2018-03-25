@@ -32,6 +32,10 @@ $(document).ready(function () {
     var gameStatus;
     var userName;
     var winner;
+    var connectionOne;
+    var connectionTwo;
+    var whoAmIConnection;
+    var myConnection;
 
     refDatabase.ref("/playerOne/" + "choice").set("");
     refDatabase.ref("/playerTwo/" + "choice").set("");
@@ -50,18 +54,26 @@ $(document).ready(function () {
             var enteredData = snapshot.val();
             if (enteredData.connection1 === false) {
                 whoAmI = "/playerOne/";
+                myConnection = "/connection1/";
                 refDatabase.ref("connection1").set(true);
                 refDatabase.ref().onDisconnect().update({ connection1: false });
-            } else {
+            }
+            // } else {
+            //     whoAmI = "/playerTwo/";
+            //     refDatabase.ref("connection2").set(true);
+            //     refDatabase.ref().onDisconnect().update({ connection2: false });
+            // }
+
+            else if (enteredData.connection1 === true && enteredData.connection2 === false) {
+                // whoAmI === "/playerTwo/"
                 whoAmI = "/playerTwo/";
+                myConnection = "/connection2/";
                 refDatabase.ref("connection2").set(true);
                 refDatabase.ref().onDisconnect().update({ connection2: false });
+            } else {
+                whoAmI = "";
             }
 
-            if (enteredData.connection1 === true && enteredData.connection2 === false) {
-                whoAmI === "/playerTwo/"
-
-            }
             whoAmIname = whoAmI + "online"
 
             console.log(enteredData.playerOne);
@@ -69,6 +81,7 @@ $(document).ready(function () {
 
         })
     }
+
     checkWhoAmI();
 
     //listen for user picks
@@ -87,6 +100,10 @@ $(document).ready(function () {
 
         playerOneExist = snapshot.val().playerOne.online;
         playerTwoExist = snapshot.val().playerTwo.online;
+
+        connectionOne = snapshot.val().connection1;
+        connectionTwo = snapshot.val().connection2;
+
 
         gameStatus = snapshot.val().Winner;
 
@@ -159,6 +176,9 @@ $(document).ready(function () {
             $(".selectionTwo").hide();
             $("#playerTwoOpposingPick").show();
         }
+        if (whoAmI === "/playerOne/" && playerOneExist === false && playerTwoExist === false) {
+            $("#playerTwoOpposingPick").hide();
+        }
 
     }, function (errorObject) {
         console.log("The read failed: " + errorObject.code);
@@ -167,9 +187,21 @@ $(document).ready(function () {
     //enter user names
     $("#SaveNameButton").on("click", function () {
         // checkWhoAmI(); //checks which player am I again in case second player has already logged
+        if ((playerOneExist === true && playerTwoExist === false)) {
+            refDatabase.ref("connection2").set(true);
+            whoAmI = "/playerTwo/";
+            whoAmIConnection = whoAmI;
+        } else if ((playerOneExist === false && playerTwoExist === true) || (playerOneExist === false && playerTwoExist === false)) {
+            refDatabase.ref("connection1").set(true);
+            whoAmI = "/playerOne/";
+            whoAmIConnection = whoAmI;
+        }
         if (playerOneExist === true && playerTwoExist === true) {
+            $(".modal-title").text("Wait!");
+            $("#modalMessage").text("There are already 2 players online.")
             $("#myModal").modal();
         } else {
+            whoAmIConnection = whoAmI;
             if ($("#playerName").val() !== "") {
                 userProfile.name = $("#playerName").val().trim();
                 refDatabase.ref(whoAmI).onDisconnect().update({ name: "", online: false });
@@ -203,7 +235,7 @@ $(document).ready(function () {
 
 
     $("#playerOne").on("click", ".selection", function () {
-        if (whoAmI === "/playerOne/" && playerOneExist === true && playerTwoExist === true) {
+        if (whoAmI === "/playerOne/" && playerOneExist === true && playerTwoExist === true && whoAmI === whoAmIConnection) {
             console.log($(this).attr("data-choice"));
             playerOneGuess = $(this).attr("data-choice");
             refDatabase.ref(whoAmI + "choice").set(playerOneGuess);
@@ -225,7 +257,7 @@ $(document).ready(function () {
         }
     })
     $("#playerTwo").on("click", ".selection", function () {
-        if (whoAmI === "/playerTwo/" && playerTwoExist === true && playerOneExist === true) {
+        if (whoAmI === "/playerTwo/" && playerTwoExist === true && playerOneExist === true && whoAmI === whoAmIConnection) {
             console.log($(this).attr("data-choice"));
             playerTwoGuess = $(this).attr("data-choice");
             refDatabase.ref(whoAmI + "choice").set(playerTwoGuess);
@@ -374,6 +406,14 @@ $(document).ready(function () {
         idleTime = idleTime + 1;
         if (idleTime > 9) { // 10 minutes
             window.location.reload();
+            //     refDatabase.ref(myConnection).set(false);
+            //     if (whoAmI === "/playerOne/") {
+            //         refDatabase.ref(whoAmI).set({name:"", online:false})
+            //     }
+            //     if (whoAmI === "/playerTwo/") {
+            //         refDatabase.ref(whoAmI).set({name:"", online:false})
+            //     }
+            // }
         }
     }
-})
+    })
